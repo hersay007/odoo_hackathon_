@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StackIt - Home</title>
   <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
     :root {
       --bg: #0f172a;
@@ -23,18 +24,70 @@
     }
 
     nav {
-      background-color: #020617;
-      padding: 14px 24px;
+      background-color: #111827;
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 12px 24px;
     }
 
-    nav a {
+    .nav-left a {
       color: var(--accent);
-      font-weight: bold;
+      font-size: 1.5rem;
       text-decoration: none;
-      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .nav-center a, .nav-right a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 1rem;
+      transition: color 0.2s ease;
+    }
+
+    .nav-center a:hover, .nav-right a:hover {
+      color: var(--accent);
+    }
+
+    .icon-button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      position: relative;
+      margin-left: 16px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background-color: red;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    .username {
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    .ask-button {
+      background-color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 20px;
+    }
+
+    .ask-button:hover {
+      background-color: #2563eb;
     }
 
     .container {
@@ -159,9 +212,21 @@
 
   <!-- Navbar -->
   <nav>
-    <a href="#">StackIt</a>
+    <div class="nav-left">
+      <a href="/">StackIt</a>
+    </div>
+
+    <div class="nav-center">
+      <a href="/questions">Questions</a>
+      <a href="/admin" id="admin-link" style="display: none;">Admin</a>
+    </div>
+
+    <div class="nav-right" id="nav-right">
+      <!-- JS fills this section -->
+    </div>
   </nav>
 
+  <!-- Page Content -->
   <div class="container">
     <h1>Welcome to StackIt</h1>
     <p class="subtext">A collaborative platform where developers share knowledge, ask questions, and help each other grow.</p>
@@ -188,18 +253,53 @@
     <!-- Search and Filter -->
     <div class="search-section">
       <input type="text" placeholder="Search questions by title or tags..." id="searchBox" oninput="filterQuestions()" />
-      <div class="tags" id="tagFilters">
-        <!-- Tags will be added by JS -->
-      </div>
+      <div class="tags" id="tagFilters"></div>
     </div>
 
     <!-- Questions -->
-    <div id="questionsContainer">
-      <!-- Dynamic list here -->
-    </div>
+    <div id="questionsContainer"></div>
   </div>
 
+  <!-- Script Logic -->
   <script>
+    const user = {
+      id: 1,
+      username: "hersay",
+      role: "user",
+      unreadNotifications: 3
+    };
+
+    const navRight = document.getElementById("nav-right");
+    const adminLink = document.getElementById("admin-link");
+
+    if (!user || user.role === "guest") {
+      navRight.innerHTML = `
+        <a href="/login">Login</a>
+        <a href="/signup">Sign Up</a>
+      `;
+    } else {
+      if (user.role === "admin") {
+        adminLink.style.display = "inline-block";
+      }
+
+      navRight.innerHTML = `
+        <a href="ask.html" class="ask-button">Ask Question</a>
+        <button class="icon-button" title="Notifications">
+          <i data-lucide="bell"></i>
+          ${user.unreadNotifications > 0 ? `<span class="notification-badge">${user.unreadNotifications}</span>` : ''}
+        </button>
+        <a href="/profile"><i data-lucide="user"></i> <span class="username">${user.username}</span></a>
+        <button class="icon-button" onclick="logout()" title="Logout">
+          <i data-lucide="log-out"></i>
+        </button>
+      `;
+    }
+
+    function logout() {
+      alert("Logging out...");
+    }
+
+    // Tag & Question Logic
     const tags = ["React", "Authentication", "JWT", "Security", "State Management", "Redux", "Context API"];
     const questions = [
       {
@@ -268,5 +368,6 @@
     displayQuestions(questions);
     lucide.createIcons();
   </script>
+
 </body>
 </html>

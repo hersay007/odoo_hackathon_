@@ -181,4 +181,77 @@
       <span onclick="addTagFromSuggestion('JWT')">JWT</span>
       <span onclick="addTagFromSuggestion('Security')">Security</span>
       <span onclick="addTagFromSuggestion('Redux')">Redux</span>
-      <span onclick="addTagFromSuggestion('Backend')">Bac
+      <span onclick="addTagFromSuggestion('Backend')">Backend</span>
+    </div>
+
+    <button class="submit-btn" onclick="submitFullQuestion()">Publish</button>
+  </div>
+
+  <script>
+    const tagInput = document.getElementById("tagInput");
+    const tagContainer = document.getElementById("tagInputContainer");
+    const tagWarning = document.getElementById("tag-warning");
+    const iframe = document.getElementById("editorFrame");
+
+    let tags = [];
+
+    tagInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const value = tagInput.value.trim();
+        if (value !== "") {
+          addTag(value);
+          tagInput.value = "";
+        }
+      }
+    });
+
+    function addTagFromSuggestion(tag) {
+      if (!tags.includes(tag.toLowerCase())) {
+        addTag(tag);
+      }
+    }
+
+    function addTag(tagText) {
+      if (tags.length >= 5) {
+        tagWarning.style.display = "block";
+        setTimeout(() => tagWarning.style.display = "none", 2000);
+        return;
+      }
+
+      const tag = tagText.toLowerCase();
+      if (tags.includes(tag)) return;
+
+      tags.push(tag);
+      const pill = document.createElement("span");
+      pill.className = "tag-pill";
+      pill.innerHTML = `${tag} <i class="fas fa-times" onclick="removeTag('${tag}')"></i>`;
+      pill.setAttribute("data-tag", tag);
+      tagContainer.insertBefore(pill, tagInput);
+    }
+
+    function removeTag(tag) {
+      tags = tags.filter(t => t !== tag);
+      const pills = document.querySelectorAll(`[data-tag="${tag}"]`);
+      pills.forEach(p => p.remove());
+    }
+
+    function submitFullQuestion() {
+      const title = document.getElementById("title").value.trim();
+      const content = iframe.contentWindow.getEditorContent?.();
+
+      if (!title || !content || tags.length === 0) {
+        alert("Please complete all fields and add at least one tag.");
+        return;
+      }
+
+      console.log("✅ Question Submitted");
+      console.log("Title:", title);
+      console.log("Description (HTML):", content);
+      console.log("Tags:", tags);
+
+      alert("Your question has been submitted!");
+    }
+  </script>
+</body>
+</html>

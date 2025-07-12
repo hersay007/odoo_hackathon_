@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StackIt Rich Text Editor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .editor-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .toolbar {
+            background: #2c3e50;
+            padding: 10px 15px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .toolbar button {
+            background: transparent;
+            border: none;
+            color: #ecf0f1;
+            padding: 8px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            min-width: 32px;
+            justify-content: center;
+        }
+
+        .toolbar button .btn-text {
+            display: none;
+        }
+
+        .toolbar button i {
+            font-size: 14px;
+        }
+
+        /* Fallback when icons don't load */
+        .toolbar button:not(.preview-toggle) .btn-text {
+            display: block;
+        }
+
+        .toolbar button:not(.preview-toggle) i + .btn-text {
+            display: none;
+        }
+
+        /* Show icons when they load properly */
+        .toolbar button i.fa-bold,
+        .toolbar button i.fa-italic,
+        .toolbar button i.fa-strikethrough,
+        .toolbar button i.fa-underline,
+        .toolbar button i.fa-align-left,
+        .toolbar button i.fa-align-center,
+        .toolbar button i.fa-align-right,
+        .toolbar button i.fa-list-ul,
+        .toolbar button i.fa-list-ol,
+        .toolbar button i.fa-smile,
+        .toolbar button i.fa-link,
+        .toolbar button i.fa-image,
+        .toolbar button i.fa-undo,
+        .toolbar button i.fa-redo,
+        .toolbar button i.fa-eye,
+        .toolbar button i.fa-edit {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+
+        .toolbar button i.fa-bold:before { content: "\f032"; }
+        .toolbar button i.fa-italic:before { content: "\f033"; }
+        .toolbar button i.fa-strikethrough:before { content: "\f0cc"; }
+        .toolbar button i.fa-underline:before { content: "\f0cd"; }
+        .toolbar button i.fa-align-left:before { content: "\f036"; }
+        .toolbar button i.fa-align-center:before { content: "\f037"; }
+        .toolbar button i.fa-align-right:before { content: "\f038"; }
+        .toolbar button i.fa-list-ul:before { content: "\f0ca"; }
+        .toolbar button i.fa-list-ol:before { content: "\f0cb"; }
+        .toolbar button i.fa-smile:before { content: "\f118"; }
+        .toolbar button i.fa-link:before { content: "\f0c1"; }
+        .toolbar button i.fa-image:before { content: "\f03e"; }
+        .toolbar button i.fa-undo:before { content: "\f0e2"; }
+        .toolbar button i.fa-redo:before { content: "\f01e"; }
+        .toolbar button i.fa-eye:before { content: "\f06e"; }
+        .toolbar button i.fa-edit:before { content: "\f044"; }
+
+        .toolbar button:hover {
+            background: #34495e;
+            color: #3498db;
+        }
+
+        .toolbar button.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .toolbar .separator {
+            width: 1px;
+            height: 20px;
+            background: #34495e;
+            margin: 0 5px;
+        }
+
+        .toolbar select {
+            background: #34495e;
+            color: #ecf0f1;
+            border: 1px solid #2c3e50;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .toolbar input[type="color"] {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .toolbar input[type="file"] {
+            display: none;
+        }
+
+        .editor-content {
+            min-height: 300px;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            outline: none;
+            border: none;
+            resize: vertical;
+            overflow-y: auto;
+        }
+
+        .editor-content:focus {
+            outline: none;
+        }
+
+        .editor-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .editor-content blockquote {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin: 15px 0;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+
+        .editor-content a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .editor-content a:hover {
+            text-decoration: underline;
+        }
+
+        .editor-content ul, .editor-content ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .editor-content li {
+            margin: 5px 0;
+        }
+
+        .editor-footer {
+            background: #ecf0f1;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #bdc3c7;
+        }
+
+        .char-count {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #2980b9;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .emoji-picker span {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+
+        .emoji-picker span:hover {
+            background: #f8f9fa;
+        }
+
+        .url-input {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            min-width: 300px;
+        }
+
+        .url-input input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .url-input button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .url-input button:hover {
+            background: #2980b9;
+        }
+
+        .url-input .cancel-btn {
+            background: #95a5a6;
+        }
+
+        .url-input .cancel-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .preview-mode {
+            background: #f8f9fa;
+            padding: 20px;
+            min-height: 300px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .preview-toggle {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .preview-toggle:hover {
+            background: #138496;
+        }
+
+        .preview-toggle.active {
+            background: #138496;
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                justify-content: center;
+            }
+            
+            .toolbar button {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            
+            .editor-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <div class="toolbar">
+            <button onclick="formatText('bold')" title="Bold"><i class="fas fa-bold"></i><span class="btn-text">B</span></button>
+            <button onclick="formatText('italic')" title="Italic"><i class="fas fa-italic"></i><span class="btn-text">I</span></button>
+            <button onclick="formatText('strikethrough')" title="Strikethrough"><i class="fas fa-strikethrough"></i><span class="btn-text">S</span></button>
+            <button onclick="formatText('underline')" title="Underline"><i class="fas fa-underline"></i><span class="btn-text">U</span></button>
+            
+            <div class="separator"></div>
+            
+            <select onchange="formatText('fontSize', this.value)">
+                <option value="">Font Size</option>
+                <option value="1">Small</option>
+                <option value="3">Normal</option>
+                <option value="5">Large</option>
+                <option value="7">Huge</option>
+            </select>
+            
+            <input type="color" onchange="formatText('foreColor', this.value)" title="Text Color">
+            <input type="color" onchange="formatText('backColor', this.value)" title="Background Color">
+            
+            <div class="separator"></div>
+            
+            <button onclick="formatText('justifyLeft')" title="Align Left"><i class="fas fa-align-left"></i><span class="btn-text">⬅</span></button>
+            <button onclick="formatText('justifyCenter')" title="Align Center"><i class="fas fa-align-center"></i><span class="btn-text">⬌</span></button>
+            <button onclick="formatText('justifyRight')" title="Align Right"><i class="fas fa-align-right"></i><span class="btn-text">➡</span></button>
+            
+            <div class="separator"></div>
+            
+            <button onclick="formatText('insertUnorderedList')" title="Bullet List"><i class="fas fa-list-ul"></i><span class="btn-text">•</span></button>
+            <button onclick="formatText('insertOrderedList')" title="Numbered List"><i class="fas fa-list-ol"></i><span class="btn-text">1.</span></button>
+            
+            <div class="separator"></div>
+            
+            <button onclick="toggleEmojiPicker()" title="Insert Emoji"><i class="fas fa-smile"></i><span class="btn-text">😊</span></button>
+            <button onclick="insertLink()" title="Insert Link"><i class="fas fa-link"></i><span class="btn-text">🔗</span></button>
+            <button onclick="document.getElementById('imageInput').click()" title="Insert Image"><i class="fas fa-image"></i><span class="btn-text">📷</span></button>
+            <input type="file" id="imageInput" accept="image/*" onchange="insertImage(event)">
+            
+            <div class="separator"></div>
+            
+            <button onclick="formatText('undo')" title="Undo"><i class="fas fa-undo"></i><span class="btn-text">↶</span></button>
+            <button onclick="formatText('redo')" title="Redo"><i class="fas fa-redo"></i><span class="btn-text">↷</span></button>
+            
+            <div class="separator"></div>
+            
+            <button onclick="togglePreview()" class="preview-toggle" title="Toggle Preview"><i class="fas fa-eye"></i><span class="btn-text">👁</span> Preview</button>
+        </div>
+        
+        <div id="editor" class="editor-content" contenteditable="true" placeholder="Start typing your content here...">
+            <p>Welcome to StackIt Rich Text Editor! You can format your text using the toolbar above.</p>
+        </div>
+        
+        <div id="preview" class="preview-mode" style="display: none;"></div>
+        
+        <div class="editor-footer">
+            <span class="char-count">Characters: <span id="charCount">0</span></span>
+            <button class="submit-btn" onclick="submitContent()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Emoji Picker -->
+    <div id="emojiPicker" class="emoji-picker">
+        <span onclick="insertEmoji('😀')">😀</span>
+        <span onclick="insertEmoji('😃')">😃</span>
+        <span onclick="insertEmoji('😄')">😄</span>
+        <span onclick="insertEmoji('😁')">😁</span>
+        <span onclick="insertEmoji('😆')">😆</span>
+        <span onclick="insertEmoji('😅')">😅</span>
+        <span onclick="insertEmoji('🤣')">🤣</span>
+        <span onclick="insertEmoji('😂')">😂</span>
+        <span onclick="insertEmoji('🙂')">🙂</span>
+        <span onclick="insertEmoji('😊')">😊</span>
+        <span onclick="insertEmoji('😇')">😇</span>
+        <span onclick="insertEmoji('🥰')">🥰</span>
+        <span onclick="insertEmoji('😍')">😍</span>
+        <span onclick="insertEmoji('🤩')">🤩</span>
+        <span onclick="insertEmoji('😘')">😘</span>
+        <span onclick="insertEmoji('😗')">😗</span>
+        <span onclick="insertEmoji('😚')">😚</span>
+        <span onclick="insertEmoji('😙')">😙</span>
+        <span onclick="insertEmoji('😋')">😋</span>
+        <span onclick="insertEmoji('😛')">😛</span>
+        <span onclick="insertEmoji('😜')">😜</span>
+        <span onclick="insertEmoji('🤪')">🤪</span>
+        <span onclick="insertEmoji('😝')">😝</span>
+        <span onclick="insertEmoji('🤑')">🤑</span>
+        <span onclick="insertEmoji('🤗')">🤗</span>
+        <span onclick="insertEmoji('🤭')">🤭</span>
+        <span onclick="insertEmoji('🤫')">🤫</span>
+        <span onclick="insertEmoji('🤔')">🤔</span>
+        <span onclick="insertEmoji('🤐')">🤐</span>
+        <span onclick="insertEmoji('🤨')">🤨</span>
+        <span onclick="insertEmoji('😐')">😐</span>
+        <span onclick="insertEmoji('😑')">😑</span>
+        <span onclick="insertEmoji('😶')">😶</span>
+        <span onclick="insertEmoji('😏')">😏</span>
+        <span onclick="insertEmoji('😒')">😒</span>
+        <span onclick="insertEmoji('🙄')">🙄</span>
+        <span onclick="insertEmoji('😬')">😬</span>
+        <span onclick="insertEmoji('🤥')">🤥</span>
+        <span onclick="insertEmoji('😌')">😌</span>
+        <span onclick="insertEmoji('😔')">😔</span>
+        <span onclick="insertEmoji('😪')">😪</span>
+        <span onclick="insertEmoji('🤤')">🤤</span>
+        <span onclick="insertEmoji('😴')">😴</span>
+        <span onclick="insertEmoji('👍')">👍</span>
+        <span onclick="insertEmoji('👎')">👎</span>
+        <span onclick="insertEmoji('👌')">👌</span>
+        <span onclick="insertEmoji('✌️')">✌️</span>
+        <span onclick="insertEmoji('🤞')">🤞</span>
+        <span onclick="insertEmoji('🤟')">🤟</span>
+        <span onclick="insertEmoji('🤘')">🤘</span>
+        <span onclick="insertEmoji('👏')">👏</span>
+        <span onclick="insertEmoji('🙌')">🙌</span>
+        <span onclick="insertEmoji('🤝')">🤝</span>
+        <span onclick="insertEmoji('💪')">💪</span>
+        <span onclick="insertEmoji('🎉')">🎉</span>
+        <span onclick="insertEmoji('🎊')">🎊</span>
+        <span onclick="insertEmoji('🔥')">🔥</span>
+        <span onclick="insertEmoji('✨')">✨</span>
+        <span onclick="insertEmoji('⭐')">⭐</span>
+        <span onclick="insertEmoji('💡')">💡</span>
+        <span onclick="insertEmoji('💯')">💯</span>
+        <span onclick="insertEmoji('❤️')">❤️</span>
+        <span onclick="insertEmoji('💙')">💙</span>
+        <span onclick="insertEmoji('💚')">💚</span>
+        <span onclick="insertEmoji('💜')">💜</span>
+        <span onclick="insertEmoji('🧡')">🧡</span>
+        <span onclick="insertEmoji('💛')">💛</span>
+        <span onclick="insertEmoji('🤍')">🤍</span>
+        <span onclick="insertEmoji('🖤')">🖤</span>
+        <span onclick="insertEmoji('🤎')">🤎</span>
+    </div>
+
+    <!-- URL Input Dialog -->
+    <div id="urlInput" class="url-input">
+        <input type="text" id="linkText" placeholder="Link text">
+        <input type="url" id="linkUrl" placeholder="https://example.com">
+        <button onclick="confirmLink()">Add Link</button>
+        <button onclick="cancelLink()" class="cancel-btn">Cancel</button>
+    </div>
+
+    <script>
+        let isPreviewMode = false;
+        let savedSelection = null;
+
+        // Format text function
+        function formatText(command, value = null) {
+            document.execCommand(command, false, value);
+            updateCharCount();
+        }
+
+        // Toggle emoji picker
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            const isVisible = picker.style.display === 'block';
+            picker.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                const rect = event.target.getBoundingClientRect();
+                picker.style.left = rect.left + 'px';
+                picker.style.top = rect.bottom + 10 + 'px';
+            }
+        }
+
+        // Insert emoji
+        function insertEmoji(emoji) {
+            const editor = document.getElementById('editor');
+            editor.focus();
+            document.execCommand('insertText', false, emoji);
+            document.getElementById('emojiPicker').style.display = 'none';
+            updateCharCount();
+        }
+
+        // Insert link
+        function insertLink() {
+            savedSelection = window.getSelection().getRangeAt(0);
+            const selectedText = savedSelection.toString();
+            
+            document.getElementById('linkText').value = selectedText;
+            document.getElementById('linkUrl').value = '';
+            
+            const dialog = document.getElementById('urlInput');
+            dialog.style.display = 'block';
+            dialog.style.left = '50%';
+            dialog.style.top = '50%';
+            dialog.style.transform = 'translate(-50%, -50%)';
+        }
+
+        // Confirm link insertion
+        function confirmLink() {
+            const linkText = document.getElementById('linkText').value;
+            const linkUrl = document.getElementById('linkUrl').value;
+            
+            if (linkUrl) {
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(savedSelection);
+                
+                const link = `<a href="${linkUrl}" target="_blank">${linkText || linkUrl}</a>`;
+                document.execCommand('insertHTML', false, link);
+                
+                cancelLink();
+                updateCharCount();
+            }
+        }
+
+        // Cancel link insertion
+        function cancelLink() {
+            document.getElementById('urlInput').style.display = 'none';
+            document.getElementById('linkText').value = '';
+            document.getElementById('linkUrl').value = '';
+        }
+
+        // Insert image
+        function insertImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = `<img src="${e.target.result}" alt="Uploaded image" style="max-width: 100%; height: auto;">`;
+                    document.execCommand('insertHTML', false, img);
+                    updateCharCount();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Toggle preview mode
+        function togglePreview() {
+            const editor = document.getElementById('editor');
+            const preview = document.getElementById('preview');
+            const toggleBtn = document.querySelector('.preview-toggle');
+            
+            isPreviewMode = !isPreviewMode;
+            
+            if (isPreviewMode) {
+                preview.innerHTML = editor.innerHTML;
+                editor.style.display = 'none';
+                preview.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fas fa-edit"></i><span class="btn-text">✏️</span> Edit';
+                toggleBtn.classList.add('active');
+            } else {
+                editor.style.display = 'block';
+                preview.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i><span class="btn-text">👁</span> Preview';
+                toggleBtn.classList.remove('active');
+            }
+        }
+
+        // Update character count
+        function updateCharCount() {
+            const editor = document.getElementById('editor');
+            const text = editor.textContent || editor.innerText || '';
+            document.getElementById('charCount').textContent = text.length;
+        }
+
+        // Submit content
+        function submitContent() {
+            const editor = document.getElementById('editor');
+            const content = editor.innerHTML;
+            
+            // Here you would typically send the content to your backend
+            console.log('Content to submit:', content);
+            alert('Content submitted! Check console for HTML output.');
+        }
+
+        // Get editor content (useful for integration)
+        function getEditorContent() {
+            return document.getElementById('editor').innerHTML;
+        }
+
+        // Set editor content (useful for integration)
+        function setEditorContent(html) {
+            document.getElementById('editor').innerHTML = html;
+            updateCharCount();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCharCount();
+            
+            // Add event listeners for real-time updates
+            const editor = document.getElementById('editor');
+            editor.addEventListener('input', updateCharCount);
+            editor.addEventListener('paste', function() {
+                setTimeout(updateCharCount, 10);
+            });
+            
+            // Close emoji picker when clicking outside
+            document.addEventListener('click', function(event) {
+                const picker = document.getElementById('emojiPicker');
+                const emojiBtn = event.target.closest('button[onclick="toggleEmojiPicker()"]');
+                
+                if (!picker.contains(event.target) && !emojiBtn) {
+                    picker.style.display = 'none';
+                }
+            });
+            
+            // Close URL input when clicking outside
+            document.addEventListener('click', function(event) {
+                const urlInput = document.getElementById('urlInput');
+                
+                if (!urlInput.contains(event.target) && !event.target.closest('button[onclick="insertLink()"]')) {
+                    urlInput.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch(event.key) {
+                    case 'b':
+                        event.preventDefault();
+                        formatText('bold');
+                        break;
+                    case 'i':
+                        event.preventDefault();
+                        formatText('italic');
+                        break;
+                    case 'u':
+                        event.preventDefault();
+                        formatText('underline');
+                        break;
+                    case 'z':
+                        event.preventDefault();
+                        formatText('undo');
+                        break;
+                    case 'y':
+                        event.preventDefault();
+                        formatText('redo');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Answer • StackIt</title>
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f1f5f9;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    p.subtext {
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+
+    .tip-box {
+      margin-top: 20px;
+      background-color: #1e293b;
+      padding: 16px;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+      color: #cbd5e1;
+    }
+
+    .tip-box h3 {
+      margin-top: 0;
+      color: #3b82f6;
+      margin-bottom: 8px;
+    }
+
+    .post-button {
+      margin-top: 24px;
+      padding: 12px 20px;
+      background-color: #3b82f6;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .post-button:hover {
+      background-color: #2563eb;
+    }
+
+    .vote-section button {
+      background: none;
+      border: none;
+      color: #60a5fa;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .accept-button {
+      margin-top: 8px;
+      background-color: #16a34a;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Answer</h1>
+    <p class="subtext">Help the community by providing a detailed, helpful answer</p>
+
+    <!-- Question Header with Voting -->
+    <div class="question-box" style="background-color: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 16px;">
+      <!-- Voting UI -->
+      <div style="text-align: center;">
+        <button onclick="vote('up')">⬆</button>
+        <div id="voteCount" style="font-size: 18px; color: #f1f5f9;">0</div>
+        <button onclick="vote('down')">⬇</button>
+      </div>
+      <!-- Question Details -->
+      <div>
+        <h2 id="questionTitle" style="color: #f1f5f9; margin-top: 0;">Loading...</h2>
+        <p id="questionDesc" style="color: #94a3b8;"></p>
+        <div id="questionTags" style="margin-top: 8px;"></div>
+      </div>
+    </div>
+
+    <!-- Embed the custom rich text editor -->
+    <iframe src="text_ed.html"></iframe>
+
+    <!-- Tips -->
+    <div class="tip-box">
+      <h3>💡 Tips for Great Answers:</h3>
+      <ul style="margin: 0; padding-left: 18px;">
+        <li>Be specific and provide details</li>
+        <li>Include working code examples when helpful</li>
+        <li>Explain why your solution works</li>
+        <li>Be courteous and constructive</li>
+      </ul>
+    </div>
+
+    <!-- Accept Button (conditionally visible) -->
+    <button id="acceptAnswerBtn" class="accept-button" style="display: none;">✅ Accept Answer</button>
+
+    <button class="post-button" onclick="submitFromIframe()">Post Answer</button>
+  </div>
+
+  <script>
+    const API = "https://your-backend-url.com"; // Replace with your backend URL
+    const params = new URLSearchParams(window.location.search);
+    const questionId = params.get("questionId");
+    const userToken = localStorage.getItem("token");
+
+    async function loadQuestion() {
+      const res = await fetch(`${API}/questions/${questionId}`);
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById("questionTitle").innerText = data.title;
+        document.getElementById("questionDesc").innerHTML = data.description;
+        document.getElementById("voteCount").innerText = data.votes || 0;
+        const tags = data.tags || [];
+        document.getElementById("questionTags").innerHTML = tags.map(tag =>
+          `<span style='padding: 4px 10px; margin-right: 6px; border-radius: 20px; background-color: #334155; color: #60a5fa; font-size: 12px;'>${tag}</span>`
+        ).join("");
+
+        // Show accept answer button only if current user is question owner
+        if (data.currentUserIsOwner) {
+          document.getElementById("acceptAnswerBtn").style.display = "inline-block";
+        }
+      } else {
+        document.getElementById("questionTitle").innerText = "Question not found.";
+      }
+    }
+
+    async function vote(type) {
+      const res = await fetch(`${API}/questions/${questionId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${userToken}`
+        },
+        body: JSON.stringify({ voteType: type })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        document.getElementById("voteCount").innerText = result.updatedVotes;
+      } else {
+        alert(result.message || "Voting failed");
+      }
+    }
+
+    function submitFromIframe() {
+      const iframe = document.querySelector("iframe");
+      const content = iframe.contentWindow.getEditorContent?.();
+      if (!content || content.trim() === "") {
+        alert("Answer cannot be empty.");
+        return;
+      }
+      console.log("Posting Answer:", content);
+      alert("Answer posted successfully!");
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
+
+
+

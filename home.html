@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StackIt - Home</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --highlight: #9333ea;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    nav {
+      background-color: #020617;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav a {
+      color: var(--accent);
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 1.4rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.2rem;
+      color: var(--accent);
+    }
+
+    .subtext {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 30px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .stat {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      flex: 1;
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .stat h2 {
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    .search-section {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .search-section input,
+    .search-section select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .tags {
+      margin-top: 10px;
+    }
+
+    .tag {
+      background: var(--bg);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin: 4px;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .tag:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .question {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .question-title {
+      font-size: 1.2rem;
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .question-meta {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    .votes-answers {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    .question-tags {
+      margin-top: 8px;
+    }
+
+    .question-tags span {
+      background: var(--bg);
+      border: 1px solid var(--muted);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      margin-right: 5px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <a href="#">StackIt</a>
+  </nav>
+
+  <div class="container">
+    <h1>Welcome to StackIt</h1>
+    <p class="subtext">A collaborative platform where developers share knowledge, ask questions, and help each other grow.</p>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div><i data-lucide="message-square"></i></div>
+        <h2>2</h2>
+        <p>Questions Asked</p>
+      </div>
+      <div class="stat">
+        <div><i data-lucide="users"></i></div>
+        <h2>1.2k</h2>
+        <p>Active Users</p>
+      </div>
+      <div class="stat">
+        <div><i data-lucide="trending-up"></i></div>
+        <h2>95%</h2>
+        <p>Answer Rate</p>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="search-section">
+      <input type="text" placeholder="Search questions by title or tags..." id="searchBox" oninput="filterQuestions()" />
+      <div class="tags" id="tagFilters">
+        <!-- Tags will be added by JS -->
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div id="questionsContainer">
+      <!-- Dynamic list here -->
+    </div>
+  </div>
+
+  <script>
+    const tags = ["React", "Authentication", "JWT", "Security", "State Management", "Redux", "Context API"];
+    const questions = [
+      {
+        title: "How to implement user authentication in React?",
+        content: "What are the best practices for handling login, logout, and protecting routes?",
+        tags: ["React", "Authentication", "JWT", "Security"],
+        votes: 15,
+        answers: 3,
+        user: "TechExplorer",
+        time: "1 day ago"
+      },
+      {
+        title: "Best practices for state management in large React apps?",
+        content: "Should I use Context API, Redux, or Zustand? What are the pros and cons?",
+        tags: ["React", "State Management", "Redux", "Context API"],
+        votes: 23,
+        answers: 5,
+        user: "CodeNinja",
+        time: "2 days ago"
+      }
+    ];
+
+    const tagFilters = document.getElementById('tagFilters');
+    const container = document.getElementById('questionsContainer');
+    let selectedTag = '';
+
+    tags.forEach(tag => {
+      const btn = document.createElement('span');
+      btn.className = 'tag';
+      btn.innerText = tag;
+      btn.onclick = () => {
+        selectedTag = selectedTag === tag ? '' : tag;
+        filterQuestions();
+      };
+      tagFilters.appendChild(btn);
+    });
+
+    function displayQuestions(list) {
+      container.innerHTML = '';
+      list.forEach(q => {
+        const el = document.createElement('div');
+        el.className = 'question';
+        el.innerHTML = `
+          <div class="votes-answers">↑ ${q.votes} votes · 💬 ${q.answers} answers</div>
+          <div class="question-title">${q.title}</div>
+          <div class="question-meta">by ${q.user} · ${q.time}</div>
+          <div class="question-tags">
+            ${q.tags.map(t => `<span>${t}</span>`).join('')}
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function filterQuestions() {
+      const search = document.getElementById('searchBox').value.toLowerCase();
+      const filtered = questions.filter(q => {
+        const inTitle = q.title.toLowerCase().includes(search);
+        const inTags = q.tags.some(t => t.toLowerCase().includes(search));
+        const tagMatch = selectedTag ? q.tags.includes(selectedTag) : true;
+        return (inTitle || inTags) && tagMatch;
+      });
+      displayQuestions(filtered);
+    }
+
+    displayQuestions(questions);
+    lucide.createIcons();
+  </script>
+</body>
+</html>

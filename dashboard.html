@@ -262,12 +262,13 @@
 
   <!-- Script Logic -->
   <script>
-    const user = {
-      id: 1,
-      username: "hersay",
-      role: "user",
-      unreadNotifications: 3
-    };
+  const user = {
+    username: "{{ username|e }}",
+    role: "user",
+    unreadNotifications: 3
+  };
+
+
 
     const navRight = document.getElementById("nav-right");
     const adminLink = document.getElementById("admin-link");
@@ -283,7 +284,7 @@
       }
 
       navRight.innerHTML = `
-        <a href="ask.html" class="ask-button">Ask Question</a>
+        <a href="/ask" class="ask-button">Ask Question</a>
         <button class="icon-button" title="Notifications">
           <i data-lucide="bell"></i>
           ${user.unreadNotifications > 0 ? `<span class="notification-badge">${user.unreadNotifications}</span>` : ''}
@@ -294,10 +295,12 @@
         </button>
       `;
     }
+     
 
     function logout() {
-      alert("Logging out...");
+      window.location.href = "/logout";
     }
+
 
     // Tag & Question Logic
     const tags = ["React", "Authentication", "JWT", "Security", "State Management", "Redux", "Context API"];

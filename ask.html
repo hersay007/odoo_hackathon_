@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ask a Question - StackIt</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <style>
+  <style href="ask.css">
     :root {
       --bg: #0f172a;
       --card: #1e293b;
@@ -55,6 +55,7 @@
       margin-top: 0.5rem;
       border: 1px solid #475569;
       border-radius: 6px;
+      box-sizing: border-box;
     }
 
     input::placeholder {
@@ -81,13 +82,150 @@
       border: 1px solid #475569;
       border-radius: 6px;
       overflow: hidden;
+      background: white;
     }
 
-    iframe {
-      width: 100%;
-      height: 600px; /* Fixed height so full editor is always visible */
+    .toolbar {
+      background: #2c3e50;
+      padding: 10px 15px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid #34495e;
+    }
+
+    .toolbar button {
+      background: transparent;
       border: none;
-      display: block;
+      color: #ecf0f1;
+      padding: 8px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: bold;
+      min-width: 32px;
+      justify-content: center;
+    }
+
+    .toolbar button:hover {
+      background: #34495e;
+      color: #3498db;
+    }
+
+    .toolbar button.active {
+      background: #3498db;
+      color: white;
+    }
+
+    .toolbar .separator {
+      width: 1px;
+      height: 20px;
+      background: #34495e;
+      margin: 0 5px;
+    }
+
+    .toolbar select {
+      background: #34495e;
+      color: #ecf0f1;
+      border: 1px solid #2c3e50;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .toolbar input[type="color"] {
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .toolbar input[type="file"] {
+      display: none;
+    }
+
+    .editor-content {
+      min-height: 300px;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+      outline: none;
+      border: none;
+      resize: vertical;
+      overflow-y: auto;
+      background: white;
+      color: #333;
+    }
+
+    .editor-content:focus {
+      outline: none;
+    }
+
+    .editor-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
+    .editor-content a {
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    .editor-content a:hover {
+      text-decoration: underline;
+    }
+
+    .editor-content ul, .editor-content ol {
+      margin: 15px 0;
+      padding-left: 30px;
+    }
+
+    .editor-content li {
+      margin: 5px 0;
+    }
+
+    .editor-footer {
+      background: #ecf0f1;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #bdc3c7;
+    }
+
+    .char-count {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    .preview-mode {
+      background: #f8f9fa;
+      padding: 20px;
+      min-height: 300px;
+      border-top: 1px solid #e9ecef;
+      color: #333;
+    }
+
+    .preview-toggle {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .preview-toggle:hover {
+      background: #138496;
+    }
+
+    .preview-toggle.active {
+      background: #138496;
     }
 
     .tags-input-container {
@@ -153,9 +291,163 @@
       font-size: 0.85rem;
       margin-top: 5px;
     }
+
+    .emoji-picker {
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: none;
+      max-width: 300px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .emoji-picker span {
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+
+    .emoji-picker span:hover {
+      background: #f8f9fa;
+    }
+
+    .url-input {
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: none;
+      min-width: 300px;
+    }
+
+    .url-input input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .url-input button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .url-input button:hover {
+      background: #2980b9;
+    }
+
+    .url-input .cancel-btn {
+      background: #95a5a6;
+    }
+
+    .url-input .cancel-btn:hover {
+      background: #7f8c8d;
+    }
+
+    nav {
+  background-color: #111827;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+}
+
+.nav-left a {
+  color: var(--accent);
+  font-size: 1.5rem;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-center a, .nav-right a {
+  color: white;
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.nav-center a:hover, .nav-right a:hover {
+  color: var(--accent);
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  margin-left: 16px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: red;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.username {
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.ask-button {
+  background-color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.ask-button:hover {
+  background-color: #2563eb;
+}
+
+
   </style>
 </head>
 <body>
+
+    <nav>
+        <div class="nav-left">
+            <a href="/">StackIt</a>
+        </div>
+
+        <div class="nav-center">
+        <a href="/questions">Questions</a>
+        <a href="/admin" id="admin-link" style="display: none;">Admin</a>
+        </div>
+
+        <div class="nav-right" id="nav-right">
+            <!-- JS fills this section -->
+        </div>
+    </nav>
 
   <div class="container">
     <h2>Ask a Question</h2>
@@ -165,7 +457,113 @@
 
     <label for="editor">Description *</label>
     <div class="editor-container">
-      <iframe src="text_ed.html" id="editorFrame" scrolling="no"></iframe>
+      <div class="toolbar">
+        <button onclick="formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+        <button onclick="formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+        <button onclick="formatText('strikethrough')" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+        <button onclick="formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+        
+        <div class="separator"></div>
+        
+        <select onchange="formatText('fontSize', this.value)">
+          <option value="">Font Size</option>
+          <option value="1">Small</option>
+          <option value="3">Normal</option>
+          <option value="5">Large</option>
+          <option value="7">Huge</option>
+        </select>
+        
+        <input type="color" onchange="formatText('foreColor', this.value)" title="Text Color">
+        <input type="color" onchange="formatText('backColor', this.value)" title="Background Color">
+        
+        <div class="separator"></div>
+        
+        <button onclick="formatText('justifyLeft')" title="Align Left"><i class="fas fa-align-left"></i></button>
+        <button onclick="formatText('justifyCenter')" title="Align Center"><i class="fas fa-align-center"></i></button>
+        <button onclick="formatText('justifyRight')" title="Align Right"><i class="fas fa-align-right"></i></button>
+        
+        <div class="separator"></div>
+        
+        <button onclick="formatText('insertUnorderedList')" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+        <button onclick="formatText('insertOrderedList')" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+        
+        <div class="separator"></div>
+        
+        <button onclick="toggleEmojiPicker()" title="Insert Emoji"><i class="fas fa-smile"></i></button>
+        <button onclick="insertLink()" title="Insert Link"><i class="fas fa-link"></i></button>
+        <button onclick="document.getElementById('imageInput').click()" title="Insert Image"><i class="fas fa-image"></i></button>
+        <input type="file" id="imageInput" accept="image/*" onchange="insertImage(event)">
+        
+        <div class="separator"></div>
+        
+        <button onclick="formatText('undo')" title="Undo"><i class="fas fa-undo"></i></button>
+        <button onclick="formatText('redo')" title="Redo"><i class="fas fa-redo"></i></button>
+        
+        <div class="separator"></div>
+        
+        <button onclick="togglePreview()" class="preview-toggle" title="Toggle Preview"><i class="fas fa-eye"></i> Preview</button>
+      </div>
+      
+      <div id="editor" class="editor-content" contenteditable="true">
+        <p>Welcome to StackIt! Start typing your question details here...</p>
+      </div>
+      
+      <div id="preview" class="preview-mode" style="display: none;"></div>
+      
+      <div class="editor-footer">
+        <span class="char-count">Characters: <span id="charCount">0</span></span>
+      </div>
+    </div>
+
+    <!-- Emoji Picker -->
+    <div id="emojiPicker" class="emoji-picker">
+      <span onclick="insertEmoji('😀')">😀</span>
+      <span onclick="insertEmoji('😃')">😃</span>
+      <span onclick="insertEmoji('😄')">😄</span>
+      <span onclick="insertEmoji('😁')">😁</span>
+      <span onclick="insertEmoji('😆')">😆</span>
+      <span onclick="insertEmoji('😅')">😅</span>
+      <span onclick="insertEmoji('🤣')">🤣</span>
+      <span onclick="insertEmoji('😂')">😂</span>
+      <span onclick="insertEmoji('🙂')">🙂</span>
+      <span onclick="insertEmoji('😊')">😊</span>
+      <span onclick="insertEmoji('😇')">😇</span>
+      <span onclick="insertEmoji('🥰')">🥰</span>
+      <span onclick="insertEmoji('😍')">😍</span>
+      <span onclick="insertEmoji('🤩')">🤩</span>
+      <span onclick="insertEmoji('😘')">😘</span>
+      <span onclick="insertEmoji('👍')">👍</span>
+      <span onclick="insertEmoji('👎')">👎</span>
+      <span onclick="insertEmoji('👌')">👌</span>
+      <span onclick="insertEmoji('✌️')">✌️</span>
+      <span onclick="insertEmoji('🤞')">🤞</span>
+      <span onclick="insertEmoji('👏')">👏</span>
+      <span onclick="insertEmoji('🙌')">🙌</span>
+      <span onclick="insertEmoji('💪')">💪</span>
+      <span onclick="insertEmoji('🎉')">🎉</span>
+      <span onclick="insertEmoji('🎊')">🎊</span>
+      <span onclick="insertEmoji('🔥')">🔥</span>
+      <span onclick="insertEmoji('✨')">✨</span>
+      <span onclick="insertEmoji('⭐')">⭐</span>
+      <span onclick="insertEmoji('💡')">💡</span>
+      <span onclick="insertEmoji('💯')">💯</span>
+      <span onclick="insertEmoji('❤️')">❤️</span>
+      <span onclick="insertEmoji('💙')">💙</span>
+      <span onclick="insertEmoji('💚')">💚</span>
+      <span onclick="insertEmoji('💜')">💜</span>
+      <span onclick="insertEmoji('🧡')">🧡</span>
+      <span onclick="insertEmoji('💛')">💛</span>
+      <span onclick="insertEmoji('🤍')">🤍</span>
+      <span onclick="insertEmoji('🖤')">🖤</span>
+      <span onclick="insertEmoji('🤎')">🤎</span>
+    </div>
+
+    <!-- URL Input Dialog -->
+    <div id="urlInput" class="url-input">
+      <input type="text" id="linkText" placeholder="Link text">
+      <input type="url" id="linkUrl" placeholder="https://example.com">
+      <button onclick="confirmLink()">Add Link</button>
+      <button onclick="cancelLink()" class="cancel-btn">Cancel</button>
     </div>
 
     <label>Tags (up to 5) *</label>
@@ -184,17 +582,60 @@
       <span onclick="addTagFromSuggestion('Backend')">Backend</span>
     </div>
 
-    <button class="submit-btn" onclick="submitFullQuestion()">Publish</button>
+    <button class="submit-btn" onclick="submitFullQuestion()">Publish Question</button>
   </div>
 
   <script>
+
+    const user = {
+  username: "{{ username|e }}",
+  role: "user",
+  unreadNotifications: 3
+};
+
+const navRight = document.getElementById("nav-right");
+const adminLink = document.getElementById("admin-link");
+
+if (!user || user.role === "guest") {
+  navRight.innerHTML = `
+    <a href="/login">Login</a>
+    <a href="/signup">Sign Up</a>
+  `;
+} else {
+  if (user.role === "admin") {
+    adminLink.style.display = "inline-block";
+  }
+
+  navRight.innerHTML = `
+    <a href="/ask" class="ask-button">Ask Question</a>
+    <button class="icon-button" title="Notifications">
+      <i data-lucide="bell"></i>
+      ${user.unreadNotifications > 0 ? `<span class="notification-badge">${user.unreadNotifications}</span>` : ''}
+    </button>
+    <a href="/profile"><i data-lucide="user"></i> <span class="username">${user.username}</span></a>
+    <button class="icon-button" onclick="logout()" title="Logout">
+      <i data-lucide="log-out"></i>
+    </button>
+  `;
+}
+
+function logout() {
+  window.location.href = "/logout";
+}
+
+
+
+    // Tag management
     const tagInput = document.getElementById("tagInput");
     const tagContainer = document.getElementById("tagInputContainer");
     const tagWarning = document.getElementById("tag-warning");
-    const iframe = document.getElementById("editorFrame");
-
     let tags = [];
 
+    // Rich text editor variables
+    let isPreviewMode = false;
+    let savedSelection = null;
+
+    // Tag functionality
     tagInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -236,9 +677,121 @@
       pills.forEach(p => p.remove());
     }
 
+    // Rich text editor functionality
+    function formatText(command, value = null) {
+      document.execCommand(command, false, value);
+      updateCharCount();
+    }
+
+    function toggleEmojiPicker() {
+      const picker = document.getElementById('emojiPicker');
+      const isVisible = picker.style.display === 'block';
+      picker.style.display = isVisible ? 'none' : 'block';
+      
+      if (!isVisible) {
+        const rect = event.target.getBoundingClientRect();
+        picker.style.left = rect.left + 'px';
+        picker.style.top = rect.bottom + 10 + 'px';
+      }
+    }
+
+    function insertEmoji(emoji) {
+      const editor = document.getElementById('editor');
+      editor.focus();
+      document.execCommand('insertText', false, emoji);
+      document.getElementById('emojiPicker').style.display = 'none';
+      updateCharCount();
+    }
+
+    function insertLink() {
+      savedSelection = window.getSelection().getRangeAt(0);
+      const selectedText = savedSelection.toString();
+      
+      document.getElementById('linkText').value = selectedText;
+      document.getElementById('linkUrl').value = '';
+      
+      const dialog = document.getElementById('urlInput');
+      dialog.style.display = 'block';
+      dialog.style.left = '50%';
+      dialog.style.top = '50%';
+      dialog.style.transform = 'translate(-50%, -50%)';
+    }
+
+    function confirmLink() {
+      const linkText = document.getElementById('linkText').value;
+      const linkUrl = document.getElementById('linkUrl').value;
+      
+      if (linkUrl) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedSelection);
+        
+        const link = `<a href="${linkUrl}" target="_blank">${linkText || linkUrl}</a>`;
+        document.execCommand('insertHTML', false, link);
+        
+        cancelLink();
+        updateCharCount();
+      }
+    }
+
+    function cancelLink() {
+      document.getElementById('urlInput').style.display = 'none';
+      document.getElementById('linkText').value = '';
+      document.getElementById('linkUrl').value = '';
+    }
+
+    function insertImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = `<img src="${e.target.result}" alt="Uploaded image" style="max-width: 100%; height: auto;">`;
+          document.execCommand('insertHTML', false, img);
+          updateCharCount();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function togglePreview() {
+      const editor = document.getElementById('editor');
+      const preview = document.getElementById('preview');
+      const toggleBtn = document.querySelector('.preview-toggle');
+      
+      isPreviewMode = !isPreviewMode;
+      
+      if (isPreviewMode) {
+        preview.innerHTML = editor.innerHTML;
+        editor.style.display = 'none';
+        preview.style.display = 'block';
+        toggleBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+        toggleBtn.classList.add('active');
+      } else {
+        editor.style.display = 'block';
+        preview.style.display = 'none';
+        toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+        toggleBtn.classList.remove('active');
+      }
+    }
+
+    function updateCharCount() {
+      const editor = document.getElementById('editor');
+      const text = editor.textContent || editor.innerText || '';
+      document.getElementById('charCount').textContent = text.length;
+    }
+
+    function getEditorContent() {
+      return document.getElementById('editor').innerHTML;
+    }
+
+    function setEditorContent(html) {
+      document.getElementById('editor').innerHTML = html;
+      updateCharCount();
+    }
+
     function submitFullQuestion() {
       const title = document.getElementById("title").value.trim();
-      const content = iframe.contentWindow.getEditorContent?.();
+      const content = getEditorContent();
 
       if (!title || !content || tags.length === 0) {
         alert("Please complete all fields and add at least one tag.");
@@ -252,6 +805,64 @@
 
       alert("Your question has been submitted!");
     }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updateCharCount();
+      
+      const editor = document.getElementById('editor');
+      editor.addEventListener('input', updateCharCount);
+      editor.addEventListener('paste', function() {
+        setTimeout(updateCharCount, 10);
+      });
+      
+      // Close emoji picker when clicking outside
+      document.addEventListener('click', function(event) {
+        const picker = document.getElementById('emojiPicker');
+        const emojiBtn = event.target.closest('button[onclick="toggleEmojiPicker()"]');
+        
+        if (!picker.contains(event.target) && !emojiBtn) {
+          picker.style.display = 'none';
+        }
+      });
+      
+      // Close URL input when clicking outside
+      document.addEventListener('click', function(event) {
+        const urlInput = document.getElementById('urlInput');
+        
+        if (!urlInput.contains(event.target) && !event.target.closest('button[onclick="insertLink()"]')) {
+          urlInput.style.display = 'none';
+        }
+      });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+      if (event.ctrlKey || event.metaKey) {
+        switch(event.key) {
+          case 'b':
+            event.preventDefault();
+            formatText('bold');
+            break;
+          case 'i':
+            event.preventDefault();
+            formatText('italic');
+            break;
+          case 'u':
+            event.preventDefault();
+            formatText('underline');
+            break;
+          case 'z':
+            event.preventDefault();
+            formatText('undo');
+            break;
+          case 'y':
+            event.preventDefault();
+            formatText('redo');
+            break;
+        }
+      }
+    });
   </script>
 </body>
 </html>

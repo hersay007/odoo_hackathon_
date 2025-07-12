@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login • StackIt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
+    <h1 class="text-3xl font-bold text-center mb-2">Welcome to StackIt</h1>
+    <p class="text-center text-sm text-gray-500 dark:text-gray-400 mb-6">Ask. Answer. Learn.</p>
+
+    <form method="POST" action="/auth/login" class="space-y-4">
+      <input type="email" name="email" placeholder="Email" required class="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 text-black dark:text-white" />
+      <input type="password" name="password" placeholder="Password" required class="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 text-black dark:text-white" />
+
+      <div class="text-right text-sm">
+        <a href="#" class="text-blue-500 hover:underline">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        Log In
+      </button>
+    </form>
+
+    <div class="mt-4 text-center text-sm">
+      Don't have an account? <a href="/signup" class="text-blue-500 hover:underline">Sign up</a>
+    </div>
+  </div>
+</body>
+</html>
